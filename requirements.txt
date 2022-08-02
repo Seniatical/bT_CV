@@ -1,3 +1,4 @@
-blahblah
-foofooo
-cheese101
+discord.py
+pillow
+opencv-python
+opencv-contrib-python
