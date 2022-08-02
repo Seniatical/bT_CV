@@ -17,7 +17,6 @@ import subprocess
 
 DEPENDENCY_FILE = os.path.abspath("./requirements.txt")
 INSTALL_MISSING_DEPENDENCIES = True
-PIP_COMMAND = "pip install "
 REQUIREMENTS = list()
 TO_INSTALL = list()
 

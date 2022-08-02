@@ -80,6 +80,7 @@ def main():
         print("Log files have successfully been created")
 
     print("Status: Log files are ready to be used")
+    print("#" * 50)
 
 
 main()
