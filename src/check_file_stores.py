@@ -17,12 +17,12 @@ DIRS = [i[0] for i in FILE_STORES]
 ENFORCE_MISSING_FILES = True
 DELETE_EXTRAS = True
 DELETE_EXTRA_DIRS = True
-FILE_STORE_DIRECTORY = os.path.abspath("./core/storage")
+FILE_STORE_DIRECTORY = os.path.abspath("./src/storage")
 
 
 def makeDirs() -> bool:
     for directory, _ in FILE_STORES:
-        directory_path = f"./core/storage/{directory}"
+        directory_path = f"./src/storage/{directory}"
 
         if not os.path.exists(directory_path):
             os.mkdir(directory_path)

@@ -18,7 +18,7 @@ DATABASE_FILES = [
 ]
 CLEAR_ON_START = False
 REMOVE_EXTRAS = True
-DATABASE_DIR = os.path.abspath("./core/database")
+DATABASE_DIR = os.path.abspath("./src/database")
 FUSER_OPTIONS = {
     "--all": False,
     "--interactive": False,
@@ -44,12 +44,16 @@ def checkDatabases():
     global DATABASE_DIR
 
     if not os.path.exists(DATABASE_DIR):
-        os.mkdir("./core/database")
-        DATABASE_DIR = os.path.abspath("./core/database")
+        os.mkdir("./src/database")
+        DATABASE_DIR = os.path.abspath("./src/database")
 
     for file in (files := os.listdir(DATABASE_DIR)):
         if file not in DATABASE_FILES and REMOVE_EXTRAS:
             print("Found extra file,\"", file, "\", Removing")
+            os.remove(DATABASE_DIR + "/" + file)
+        elif file in DATABASE_FILES and CLEAR_ON_START:
+            print("Found existing database - clearing")
+            os.remove(DATABASE_DIR + "/" + file)
 
     MISSING_REQUIRED = [i for i in DATABASE_FILES if i not in files]
     for mfile in MISSING_REQUIRED:
