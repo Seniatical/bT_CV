@@ -13,7 +13,7 @@ import os
 
 DESTROY_PREV_LOGS = True
 DISPLAY_TO_STDOUT = True
-LOG_DIR = os.path.abspath("./core/logs")
+LOG_DIR = os.path.abspath("./src/logs")
 LOG_LEVEL = logging.DEBUG
 LOG_FILES = [
     "discord.log",
