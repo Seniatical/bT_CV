@@ -15,3 +15,7 @@ run:
 	clear
 
 	python3 src/main.py
+
+test:
+	@echo "Testing command trees"
+	python3 tests/trees.py
