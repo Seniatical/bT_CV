@@ -7,9 +7,6 @@ Made for the **2022 Server Bot Jam**.
 Everything here is open sourced, use whatever checks, tools you wish.
 But don't forgot to at least mention me **:c**.
 
-This bot may not be running alot of the time,
-so feel free to run this bot for your private needs **:>**.
-
 ## Features
 * Fast, rapid image editing with many filters, templates and more!
 * Support for many file types including GIFs

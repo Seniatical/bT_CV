@@ -4,6 +4,7 @@
 *.sqlite
 *.key
 *.token
+src/api/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

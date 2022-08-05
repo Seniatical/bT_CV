@@ -71,6 +71,7 @@ async def cogExample(self: Cog1, ctx: Context, [...]) -> Any:
 COMMAND_CALLBACK = cogExample
 COMMAND_NAME = "cogExample"
 COMMAND_LINK_COG = "Cog1"
+# COMMAND_LINK_COG = Cog1
 ```
 
 ## Function Registering
