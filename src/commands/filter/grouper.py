@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 from discord.ext.commands import (
     BucketType,
     cooldown,
@@ -42,7 +41,6 @@ ct![filter|effect] [effect] [src]? [--options, ...]?
 """
 COMMAND_ALIASES = ["effect"]
 COMMAND_INVOKE_WITHOUT_COMMAND = True
-=======
 from discord.ext.commands import (
     BucketType,
     cooldown,
@@ -79,9 +77,8 @@ Flags:
   -nA --no-animate [FLAG] default=False
   -F --frame [int] default=0
 """
-COMMAND_USAGE = """\n
+COMMAND_USAGE = """
 ct![filter|effect] [effect] [src]? [--options, ...]?
 """
 COMMAND_ALIASES = ["effect"]
 COMMAND_INVOKE_WITHOUT_COMMAND = True
->>>>>>> origin/main

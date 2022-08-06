@@ -107,4 +107,4 @@ class bT_CV(commands.Bot):
             raise ValueError("No token provided to run {}".format(self.b_name))
         S_LOG.debug("Running %s", self.b_name)
 
-        super().run(token, reconnect=True)
+        super().run(token, reconnect=reconnect)
