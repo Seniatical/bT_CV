@@ -3,7 +3,6 @@ from argparse import ArgumentParser
 parser = ArgumentParser()
 parser.add_argument(
     "-sS", "--source-select",
-    action="store",
     type=int,
     default=-1,
     dest="ss"
@@ -32,16 +31,24 @@ parser.add_argument(
 
 parser.add_argument(
     "-fC", "--from-cache",
-    action="store",
     type=str,
     dest="cache_id",
     default=None
 )
 
 parser.add_argument(
-    "-A", "--animate", action="store_true", dest="animate", default=True
+    "-nA", "--no-animate", action="store_true", dest="animate", default=False
 )
 
 parser.add_argument(
     "-F", "--frame", type=int, dest="frame", default=0
+)
+
+parser.add_argument(
+    "-f", "--filter", action="append", type=str, dest="filters", default=[]
+)
+
+parser.add_argument(
+    "-fG", "--filter-grouping", type=str, dest="f_group", default="START",
+    choices=["BEFORE", "AFTER"]
 )

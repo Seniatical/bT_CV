@@ -33,7 +33,10 @@ def load_requirements() -> bool:
 
 def test_requirements() -> bool:
     installed = {pkg.key for pkg in pkg_resources.working_set}
-    missing = {r.name for r in REQUIREMENTS} - installed
+    try:
+        missing = {r.name for r in REQUIREMENTS} - installed
+    except AttributeError:
+        missing = {r.requirement for r in REQUIREMENTS} - installed
 
     print("Found a total of", len(installed), "installed libs")
     print(len(REQUIREMENTS), "libs required")
@@ -42,7 +45,7 @@ def test_requirements() -> bool:
         for i in missing:
             r = None
             for j in REQUIREMENTS:
-                if j.name == i:
+                if getattr(j, "name", getattr(j, "requirement", "")) == i:
                     r = j
                     break
 

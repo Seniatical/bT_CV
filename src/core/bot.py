@@ -83,10 +83,15 @@ class bT_CV(commands.Bot):
         S_LOG.debug("Client session created")
 
         tree.setInstance(self)
-
+        S_LOG.debug("Set instance")
         tree.loadTree()
+        S_LOG.debug("Tree loaded")
         tree.initTree()
+        S_LOG.debug("Commands have been sourced and cached")
+
         tree.setup()
+
+        S_LOG.info("%s has loaded %s of %s commands", self.b_name, len(self.commands), len(tree.COMMANDS))
         
     def run(self, bot_token: str = None, *, reconnect=True):
         S_LOG.debug("Preparing to run %s", self.b_name)

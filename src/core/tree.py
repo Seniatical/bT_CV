@@ -12,6 +12,7 @@ TREE: List[Union[List[str], str]]       = list()
 COMMANDS: List[Union[Command, Group]]   = list()
 COGS: List[Cog]                         = list()
 S_LOG: logging.Logger                   = logging.getLogger("bt_status")
+REGISTERING: dict                       = dict()
 
 COMMAND_ATTRS = {
     "callback",
@@ -118,6 +119,8 @@ def source_to_command(path: str, *, asG: bool = False) -> Optional[Union[Command
 
     if (link_to := getattr(lib, "COMMAND_LINK_COG", None)):
         command.COG_LINK = link_to
+    if group := getattr(lib, "COMMAND_GROUP_LINK", None):
+        command.GROUP_LINK = group
 
     return command
 
@@ -127,8 +130,19 @@ def folder_to_commands(path: str) -> Optional[Union[Group, List[Union[Group, Com
 
     files = os.listdir(path)
     if "grouper.py" not in files:
-        return [source_to_command(path + "/" + i) for i in files if i.endswith(".py")]
+        LOC = []
+
+        for i in filter(lambda x: x.endswith("py"), files):
+            cmd = source_to_command(path + "/" + i)
+            if gr := getattr(cmd, "GROUP_LINK", None):
+                group = INSTANCE.all_commands.get(gr, REGISTERING[gr])
+                group.add_command(cmd)
+            else:
+                LOC.append(cmd)
+        return LOC
+
     group_base = source_to_command(path + "/grouper.py", asG=True)
+    REGISTERING[group_base.name] = group_base
     
     if not group_base:
         S_LOG.warning("Group command for \"%s\" has been skipped - Invalid grouper file", path)
@@ -195,7 +209,11 @@ def treeInitG() -> Tuple[List[Union[Group, Command]], List[Cog]]:
             cmd = source_to_command(COMMANDS_DIRECTORY + "/" + file)
             if not cmd:
                 continue
-            commands.append(cmd)
+            if gr := getattr(cmd, "GROUP_LINK", None):
+                group = INSTANCE.all_commands[gr]
+                group.add_command(cmd)
+            else:
+                commands.append(cmd)
 
     return commands, cogs
 
@@ -226,9 +244,11 @@ def addCogs(override: bool = False):
 def addCommands():
     for command in COMMANDS:
         if link := getattr(command, "COG_LINK", ""):
-            link_command_to_cog(link)
+            link_command_to_cog(command, link)
         else:
             INSTANCE.add_command(command)
+
+    REGISTERING.clear()
 
 
 def setup(cog_override: bool = False):
