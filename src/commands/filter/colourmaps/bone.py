@@ -5,11 +5,12 @@ from discord.ext import commands
 from api.loader import to_stream, FileTooLarge, SourceNotFound
 from api.export import to_file, gen_cache_id
 from api.colourmaps import bone as Filter
+from api.combine import combine
 from core.com_par import parser
 from binascii import Error
 
 
-async def gamma(ctx: commands.Context, source: str = None, *flags, **priv) -> Any:
+async def bone(ctx: commands.Context, source: str = None, *flags, **priv) -> Any:
     prsed = vars(await ctx.bot.loop.run_in_executor(None, parser.parse_args, flags))
 
     try:
@@ -28,8 +29,14 @@ async def gamma(ctx: commands.Context, source: str = None, *flags, **priv) -> An
     except SourceNotFound:
         return await ctx.reply(content="Source provided cannot be translated")
 
+    if prsed["filters"] and prsed["f_group"] == "BEFORE":
+        stream, opts, status = combine(stream, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
+
     def filter():
         return Filter(stream, animate=not prsed["animate"], frame=prsed["frame"])
+
+    if prsed["filters"] and prsed["f_group"] == "AFTER":
+        stream, opts, status = combine(stream, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
 
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
@@ -41,11 +48,18 @@ async def gamma(ctx: commands.Context, source: str = None, *flags, **priv) -> An
         return exportable
 
     file = to_file(exportable, prsed["export-type"], **kwds)
-    stream.close()
+    getattr(stream, "close", lambda: "")()
 
     if file.is_image:
         embed = discord.Embed(title="Bone image", colour=discord.Colour.red())
         embed.set_image(url=f"attachment://{file.filename}")
+        if prsed["filters"]:
+            value = "```\n"
+            for i, j in status:
+                value += f"{i}:\n"
+                value += f"  {j}\n"
+            value += "```"
+            embed.add_field(name="Filter Statuses", value=value)
         m = await ctx.reply(embed=embed, file=file)
     else:
         m = await ctx.reply(content="Bone image data []".format(file.export_as), file=file)
@@ -59,7 +73,7 @@ async def gamma(ctx: commands.Context, source: str = None, *flags, **priv) -> An
         return await m.edit(content=content)
 
 
-COMMAND_CALLBACK = gamma
+COMMAND_CALLBACK = bone
 COMMAND_NAME = "bone"
 COMMAND_USAGE = """
 ct!filter bone [src...]?

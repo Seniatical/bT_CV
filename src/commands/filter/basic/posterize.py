@@ -5,16 +5,13 @@ from discord.ext import commands
 from api.loader import to_stream, FileTooLarge, SourceNotFound
 from api.export import to_file, gen_cache_id
 from api.effects import posterize as F
+from api.combine import combine
 from core.com_par import parser
 from binascii import Error
 
 
-async def posterize(ctx: commands.Context, source: str = None, bits: int = 8, *flags, **priv) -> Any:
+async def posterize(ctx: commands.Context, source: str = None, *flags, **priv) -> Any:
     prsed = vars(await ctx.bot.loop.run_in_executor(None, parser.parse_args, flags))
-    if bits > 8:
-        bits = 8
-    elif bits < 1:
-        bits = 1
 
     try:
         if cache := ctx.bot.runtime_cache["IMAGES"].get(prsed["cache_id"]):
@@ -32,12 +29,18 @@ async def posterize(ctx: commands.Context, source: str = None, bits: int = 8, *f
     except SourceNotFound:
         return await ctx.reply(content="Source provided cannot be translated")
 
+    if prsed["filters"] and prsed["f_group"] == "BEFORE":
+        stream, opts, status = combine(stream, prsed["filters"][:5], **prsed)
+
     def filter():
-        return F(stream, bits, animate=prsed["animate"], frame=prsed["frame"])
+        return F(stream, **prsed)
 
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
-    kwds = {"pot": prsed["form"]}
+    if prsed["filters"] and prsed["f_group"] == "AFTER":
+        stream, opts, status = combine(exportable, prsed["filters"][:5], **prsed)
+
+    kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
         kwds.update({"duration": opts[0], "loop": opts[1]})
 
@@ -45,14 +48,21 @@ async def posterize(ctx: commands.Context, source: str = None, bits: int = 8, *f
         return exportable
 
     file = to_file(exportable, prsed["export-type"], **kwds)
-    stream.close()
+    getattr(stream, "close", lambda: "")()
 
     if file.is_image:
         embed = discord.Embed(title="Posterized image", colour=discord.Colour.red())
         embed.set_image(url=f"attachment://{file.filename}")
+        if prsed["filters"]:
+            value = "```\n"
+            for i, j in status:
+                value += f"{i}:\n"
+                value += f"  {j}\n"
+            value += "```"
+            embed.add_field(name="Posterized Statuses", value=value)
         m = await ctx.reply(embed=embed, file=file)
     else:
-        m = await ctx.reply(content="Posterized image data []".format(file.export_as), file=file)
+        m = await ctx.reply(content="Flipped image data []".format(file.export_as), file=file)
 
     if prsed["cache"]:
         attach = m.embeds[0].image.url

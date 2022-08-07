@@ -32,6 +32,7 @@ class SourceNotFound(Exception):
 
 
 def get_asset_url(asset):
+    print(asset.BASE + asset._url)
     return asset.BASE + asset._url
 
 
@@ -117,6 +118,8 @@ async def find_source(ctx: Context, arg: str, sec: bool = False, source_select: 
 
     try:
         if member := await MEM_CONV.convert(ctx, source.content):
+            if (ur := member.avatar._url).startswith("https"):
+                return ur
             return get_asset_url(member.avatar_url)
     except MemberNotFound:
         pass

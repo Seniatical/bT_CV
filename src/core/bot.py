@@ -5,11 +5,13 @@ import dotenv
 import logging
 from inspect import Parameter
 import aiohttp
+from cv2 import error
 
 from . import tree
 
 dotenv.load_dotenv()
 S_LOG = logging.getLogger("bt_status")
+C_LOG = logging.getLogger("ct_commands")
 
 
 class bT_CV(commands.Bot):
@@ -34,6 +36,11 @@ class bT_CV(commands.Bot):
         }
 
         super().__init__(**self.kwds)
+
+    async def on_command(self, ctx, *args, **kwds):
+        auth = f"{ctx.author.name.encode(errors='ignore').decode()}"
+        guild = f"{ctx.guild.name.encode(errors='ignore').decode()} [{ctx.guild.id}]"
+        C_LOG.debug(f"{auth} used {ctx.command.name} in {guild}")
 
     async def on_command_error(self, ctx, exception):
         if isinstance(exception, commands.CommandNotFound):
@@ -73,6 +80,9 @@ class bT_CV(commands.Bot):
             return await ctx.reply(content=exception.args[0])
 
         else:
+            if og := getattr(exception, "original", None):
+                if isinstance(og, error):
+                    return await ctx.reply(content="An error occurred with your image\n```" + og.args[0] + "```")
             await ctx.reply(content="An error has occured!")
             raise exception
 

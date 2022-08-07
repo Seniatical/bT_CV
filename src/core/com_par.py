@@ -49,6 +49,22 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    "-fG", "--filter-grouping", type=str, dest="f_group", default="START",
+    "-fG", "--filter-grouping", type=str, dest="f_group", default="BEFORE",
     choices=["BEFORE", "AFTER"]
+)
+
+parser.add_argument(
+    "-r", "--reverse", action="store_true", dest="reverse", default=False
+)
+
+parser.add_argument(
+    "-sF", "--skip-frame", action="append", type=int, dest="skip", default=[]
+)
+
+parser.add_argument(
+    "-l", "--loops", type=int, dest="loop", default=0
+)
+
+parser.add_argument(
+    "-d", "--duration", type=int, dest="duration", default=0
 )

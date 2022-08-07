@@ -5,11 +5,12 @@ from discord.ext import commands
 from api.loader import to_stream, FileTooLarge, SourceNotFound
 from api.export import to_file, gen_cache_id
 from api.effects import mirror as F
+from api.combine import combine
 from core.com_par import parser
 from binascii import Error
 
 
-async def mirror(ctx: commands.Context, source: str = None, *flags, **priv) -> Any:
+async def exif_transpose(ctx: commands.Context, source: str = None, *flags, **priv) -> Any:
     prsed = vars(await ctx.bot.loop.run_in_executor(None, parser.parse_args, flags))
 
     try:
@@ -28,12 +29,18 @@ async def mirror(ctx: commands.Context, source: str = None, *flags, **priv) -> A
     except SourceNotFound:
         return await ctx.reply(content="Source provided cannot be translated")
 
+    if prsed["filters"] and prsed["f_group"] == "BEFORE":
+        stream, opts, status = combine(stream, prsed["filters"][:5], **prsed)
+
     def filter():
-        return F(stream, animate=prsed["animate"], frame=prsed["frame"])
+        return F(stream, **prsed)
 
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
-    kwds = {"pot": prsed["form"]}
+    if prsed["filters"] and prsed["f_group"] == "AFTER":
+        stream, opts, status = combine(exportable, prsed["filters"][:5], **prsed)
+
+    kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
         kwds.update({"duration": opts[0], "loop": opts[1]})
 
@@ -41,11 +48,18 @@ async def mirror(ctx: commands.Context, source: str = None, *flags, **priv) -> A
         return exportable
 
     file = to_file(exportable, prsed["export-type"], **kwds)
-    stream.close()
+    getattr(stream, "close", lambda: "")()
 
     if file.is_image:
         embed = discord.Embed(title="Transposed (EXIF) image", colour=discord.Colour.red())
         embed.set_image(url=f"attachment://{file.filename}")
+        if prsed["filters"]:
+            value = "```\n"
+            for i, j in status:
+                value += f"{i}:\n"
+                value += f"  {j}\n"
+            value += "```"
+            embed.add_field(name="Filter Statuses", value=value)
         m = await ctx.reply(embed=embed, file=file)
     else:
         m = await ctx.reply(content="Transposed (EXIF) image data []".format(file.export_as), file=file)
@@ -59,7 +73,7 @@ async def mirror(ctx: commands.Context, source: str = None, *flags, **priv) -> A
         return await m.edit(content=content)
 
 
-COMMAND_CALLBACK = mirror
+COMMAND_CALLBACK = exif_transpose
 COMMAND_NAME = "exif_transpose"
 COMMAND_USAGE = """
 ct!filter exif_transpose [src...]?

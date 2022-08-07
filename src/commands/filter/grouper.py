@@ -71,11 +71,17 @@ COMMAND_HELP = f"""\
 Flags:
   -sS --source-select [integer] default=-1
   -E --export [string] [image | base64 | array] default=image
-  -iF --image-format [str] [PNG | JPG | GIF | JPEG] default=AUTO
+  -iF --image-format [string] [PNG | JPG | GIF | JPEG] default=AUTO
   -C --cache [FLAG] default=False
-  -fC --from-cache [str (cache_id)] default=None
+  -fC --from-cache [string (cache_id)] default=None
   -nA --no-animate [FLAG] default=False
   -F --frame [int] default=0
+  -f --filter [string] [stack=5] default=[]
+  -fG --filter-grouping [string] [BEFORE | AFTER] default=BEFORE
+  -r --reverse [FLAG] default=False
+  -sF --skip-frame [int] [stack=FRAMES.length] default=[]
+  -l --loop [int] default=0[INF]
+  -d --duration [int (ms)] default=Image.duration
 """
 COMMAND_USAGE = """
 ct![filter|effect] [effect] [src]? [--options, ...]?
