@@ -8,6 +8,21 @@ discord_logger = logging.getLogger("discord")
 status_logger = logging.getLogger("bt_status")
 
 
+def emit_logger(self):
+    def emitter(record):
+        try:
+            msg = self.format(record).encode("utf-8", errors="ignore").decode("utf-8", errors="ignore")
+            stream = self.stream
+            # issue 35046: merged two stream.writes into one.
+            stream.write(msg + self.terminator)
+            self.flush()
+        except RecursionError:  # See issue 36272
+            raise
+        except Exception:
+            self.handleError(record)
+    return emitter
+
+
 def pipeLoggerTo(logger: logging.Logger, pipe: typing.TextIO,
                  formatting="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
                  ) -> None:
@@ -16,6 +31,8 @@ def pipeLoggerTo(logger: logging.Logger, pipe: typing.TextIO,
         raise ValueError("Pipe provided cannot be written to")
 
     hndlr = logging.StreamHandler(pipe)
+    hndlr.emit = emit_logger(hndlr)
+
     hndlr.setFormatter(logging.Formatter(formatting))
     logger.addHandler(hndlr)
 
