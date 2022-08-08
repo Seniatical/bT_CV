@@ -68,3 +68,7 @@ parser.add_argument(
 parser.add_argument(
     "-d", "--duration", type=int, dest="duration", default=0
 )
+
+parser.add_argument(
+    "-tS", "--tr-select", type=str, dest="select", default=""
+)

@@ -10,7 +10,7 @@ from typing import Any
 @cooldown(5, 60, BucketType.member)
 async def main(ctx: Context) -> Any:
     command: Group = ctx.command
-    content = "[Filter commands] | {} Tot".format(len(command.commands))
+    content = "[Generate commands] | {} Tot".format(len(command.commands))
     content += "\n```\n"
     content += "\n".join("> " + sub_cmd.name for sub_cmd in command.commands)
     content += "\n```\n"
@@ -19,30 +19,18 @@ async def main(ctx: Context) -> Any:
 
 
 COMMAND_CALLBACK = main
-COMMAND_NAME = "filter"
-COMMAND_DESCRIPTION = "Applies an effect on to your desired image"
+COMMAND_NAME = "generate"
+COMMAND_INVOKE_WITHOUT_COMMAND = True
+COMMAND_DESCRIPTION = "Generate random images using pre-made effects"
 COMMAND_BRIEF = COMMAND_DESCRIPTION
 COMMAND_HELP = f"""\
 {COMMAND_DESCRIPTION}
 
 Flags:
-  -sS --source-select [integer] default=-1
   -E --export [string] [image | base64 | array] default=image
   -iF --image-format [string] [PNG | JPG | GIF | JPEG] default=AUTO
   -C --cache [FLAG] default=False
-  -fC --from-cache [string (cache_id)] default=None
   -cP --cache-protect [FLAG] default=False
-  -nA --no-animate [FLAG] default=False
-  -F --frame [int] default=0
   -f --filter [string] [stack=5] default=[]
-  -fG --filter-grouping [string] [BEFORE | AFTER] default=BEFORE
-  -r --reverse [FLAG] default=False
-  -sF --skip-frame [int] [stack=FRAMES.length] default=[]
-  -l --loop [int] default=0[INF]
-  -d --duration [int (ms)] default=Image.duration
 """
-COMMAND_USAGE = """
-ct![filter|effect] [effect] [src]? [--options, ...]?
-"""
-COMMAND_ALIASES = ["effect"]
-COMMAND_INVOKE_WITHOUT_COMMAND = True
+COMMAND_ALIASES = ["gen"]

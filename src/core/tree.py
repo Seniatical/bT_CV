@@ -149,7 +149,7 @@ def folder_to_commands(path: str) -> Optional[Union[Group, List[Union[Group, Com
         S_LOG.info("Skipped files from %s: %s", path, files)
         return None
 
-    files.pop(files.index("grouper.py", 0, -1))
+    files.pop(files.index("grouper.py"))
     
     for file in files:
         if isinstance(file, list):

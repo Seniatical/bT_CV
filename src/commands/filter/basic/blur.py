@@ -4,13 +4,13 @@ from typing import Any
 from discord.ext import commands
 from api.loader import to_stream, FileTooLarge, SourceNotFound
 from api.export import to_file, gen_cache_id
-from api.colourmaps import cividis as Filter
+from api.effects import blur as F
 from api.combine import combine
 from core.com_par import parser
 from binascii import Error
 
 
-async def cividis(ctx: commands.Context, source: str = None, *flags, **priv) -> Any:
+async def blur(ctx: commands.Context, source: str = None, radius: int = 15, *flags, **priv) -> Any:
     prsed = vars(await ctx.bot.loop.run_in_executor(None, parser.parse_args, flags))
 
     try:
@@ -30,15 +30,15 @@ async def cividis(ctx: commands.Context, source: str = None, *flags, **priv) -> 
         return await ctx.reply(content="Source provided cannot be translated")
 
     if prsed["filters"] and prsed["f_group"] == "BEFORE":
-        stream, opts, status = combine(stream, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
+        stream, opts, status = combine(stream, prsed["filters"][:5], **prsed)
 
     def filter():
-        return Filter(stream, **prsed)
+        return F(stream, radius, **prsed)
 
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
     if prsed["filters"] and prsed["f_group"] == "AFTER":
-        stream, opts, status = combine(exportable, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
+        stream, opts, status = combine(exportable, prsed["filters"][:5], **prsed)
 
     kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
@@ -51,7 +51,7 @@ async def cividis(ctx: commands.Context, source: str = None, *flags, **priv) -> 
     getattr(stream, "close", lambda: "")()
 
     if file.is_image:
-        embed = discord.Embed(title="Cividis image", colour=discord.Colour.red())
+        embed = discord.Embed(title="Blurred image", colour=discord.Colour.red())
         embed.set_image(url=f"attachment://{file.filename}")
         if prsed["filters"]:
             value = "```\n"
@@ -62,7 +62,7 @@ async def cividis(ctx: commands.Context, source: str = None, *flags, **priv) -> 
             embed.add_field(name="Filter Statuses", value=value)
         m = await ctx.reply(embed=embed, file=file)
     else:
-        m = await ctx.reply(content="Cividis image data []".format(file.export_as), file=file)
+        m = await ctx.reply(content="Blurred image data []".format(file.export_as), file=file)
 
     if prsed["cache"]:
         attach = m.embeds[0].image.url
@@ -73,14 +73,13 @@ async def cividis(ctx: commands.Context, source: str = None, *flags, **priv) -> 
         return await m.edit(content=content)
 
 
-COMMAND_CALLBACK = cividis
-COMMAND_NAME = "cividis"
+COMMAND_CALLBACK = blur
+COMMAND_NAME = "blur"
 COMMAND_USAGE = """
-ct!filter cividis [src...]?
-ct!filter cividis [src...]? [--flags]
+ct!filter blur [src...]? [radius:int=15]?
+ct!filter blur [src...]? [radius:int=15]? [--flags]
 """
-COMMAND_DESCRIPTION = "Applies CIVIDIS color map to an image!"
+COMMAND_DESCRIPTION = "Blurs an image!"
 COMMAND_BRIEF = COMMAND_DESCRIPTION
 COMMAND_HELP = COMMAND_DESCRIPTION
 COMMAND_GROUP_LINK = "filter"
-

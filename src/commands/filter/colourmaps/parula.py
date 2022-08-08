@@ -33,14 +33,14 @@ async def parula(ctx: commands.Context, source: str = None, *flags, **priv) -> A
         stream, opts, status = combine(stream, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
 
     def filter():
-        return Filter(stream, animate=not prsed["animate"], frame=prsed["frame"])
-
-    if prsed["filters"] and prsed["f_group"] == "AFTER":
-        stream, opts, status = combine(stream, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
+        return Filter(stream, **prsed)
 
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
-    kwds = {"pot": prsed["form"]}
+    if prsed["filters"] and prsed["f_group"] == "AFTER":
+        stream, opts, status = combine(exportable, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
+
+    kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
         kwds.update({"duration": opts[0], "loop": opts[1]})
 

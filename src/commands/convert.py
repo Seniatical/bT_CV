@@ -14,7 +14,7 @@ from PIL import Image
 from discord.ext.commands import (
     Context
 )
-from discord import Embed
+from discord import Embed, Colour
 
 # Typing
 from typing import Any
@@ -55,9 +55,6 @@ async def convert(ctx: Context, source: str = None, mode: str = "RGB", *flags) -
     if prsed["filters"] and prsed["f_group"] == "AFTER":
         stream, opts, status = combine(exportable, prsed["filters"][:5], **prsed)
 
-    if priv.get("return_raw"):
-        return exportable
-
     kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
         kwds.update({"duration": opts[0], "loop": opts[1]})
@@ -66,7 +63,7 @@ async def convert(ctx: Context, source: str = None, mode: str = "RGB", *flags) -
     getattr(stream, "close", lambda: "")()
 
     if file.is_image:
-        embed = discord.Embed(title="Converted image", colour=discord.Colour.red())
+        embed = Embed(title="Converted image", colour=Colour.red())
         embed.set_image(url=f"attachment://{file.filename}")
         if prsed["filters"]:
             value = "```\n"
@@ -91,3 +88,23 @@ async def convert(ctx: Context, source: str = None, mode: str = "RGB", *flags) -
 COMMAND_CALLBACK = convert
 COMMAND_NAME = "convert"
 COMMAND_DESCRIPTION = "Convert an image type"
+COMMAND_BRIEF = COMMAND_DESCRIPTION
+COMMAND_HELP = f"""\
+{COMMAND_DESCRIPTION}
+
+Flags:
+  -sS --source-select [integer] default=-1
+  -E --export [string] [image | base64 | array] default=image
+  -iF --image-format [string] [PNG | JPG | GIF | JPEG] default=AUTO
+  -C --cache [FLAG] default=False
+  -fC --from-cache [string (cache_id)] default=None
+  -cP --cache-protect [FLAG] default=False
+  -nA --no-animate [FLAG] default=False
+  -F --frame [int] default=0
+  -f --filter [string] [stack=5] default=[]
+  -fG --filter-grouping [string] [BEFORE | AFTER] default=BEFORE
+  -r --reverse [FLAG] default=False
+  -sF --skip-frame [int] [stack=FRAMES.length] default=[]
+  -l --loop [int] default=0[INF]
+  -d --duration [int (ms)] default=Image.duration
+"""
