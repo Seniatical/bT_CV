@@ -38,7 +38,7 @@ async def summer(ctx: commands.Context, source: str = None, *flags, **priv) -> A
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
     if prsed["filters"] and prsed["f_group"] == "AFTER":
-        stream, opts, status = combine(exportable, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
+        exportable, opts, status = combine(exportable, prsed["filters"][:5], animate=prsed["animate"], frame=prsed["frame"])
 
     kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
