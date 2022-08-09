@@ -43,8 +43,8 @@ def compare(*images):
     # Both are BytesIO objects, so we need to load them in
     encoded_image = model.encode(
         [Image.open(i) for i in images], 
-        batch_size=128, convert_to_tensor=True, 
-        show_progress_bar=True
+        batch_size=128, convert_to_tensor=True,
+        show_progress_bar=False
     )
     processed_images = util.paraphrase_mining_embeddings(encoded_image)
     score = processed_images[0][0]
@@ -111,6 +111,10 @@ async def compare_images(ctx: Context, *images) -> Any:
         if f2.startswith("https://cdn.discordapp.com/"):
             f2 = f2.split("/")[-1]
 
+        if len(content) >= 1800:
+            await ctx.send(content=content + "```")
+            content = f"Comparison of {len(images)} image files" + "\n```"
+
         content += f"\n[{shorten(f1)}] ({si1}) = [{shorten(f2)}] ({si2})\n"
         content += status
 
@@ -132,6 +136,6 @@ Attaching Files:
   Files attached will be appended to args then reduced to 10 items
 """
 COMMAND_USAGE = """
-ct!compare [src..., : MAX=10]
-ct!compare [src..., : MAX=10]?
+ct!compare [src..., : MAX=5]
+ct!compare [src..., : MAX=5]?
 """
