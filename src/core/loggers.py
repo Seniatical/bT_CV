@@ -11,15 +11,15 @@ status_logger = logging.getLogger("bt_status")
 def emit_logger(self):
     def emitter(record):
         try:
-            msg = self.format(record).encode("utf-8", errors="ignore").decode("utf-8", errors="ignore")
+            msg = self.format(record)
             stream = self.stream
             # issue 35046: merged two stream.writes into one.
-            stream.write(msg + self.terminator)
+            stream.write((msg + self.terminator).encode("utf-8", errors="ignore").decode("utf-8", errors="ignore"))
             self.flush()
         except RecursionError:  # See issue 36272
             raise
         except Exception:
-            self.handleError(record)
+            pass
     return emitter
 
 
