@@ -5,3 +5,5 @@ opencv-contrib-python
 python-dotenv
 sentence-transformers
 git+https://github.com/openai/CLIP.git
+pydantic
+glitch_this
