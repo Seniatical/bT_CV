@@ -1,8 +1,9 @@
 # Simple image converter command
+from binascii import Error
 
 # Core helpers
-from api.loader import to_stream
-from api.export import to_file
+from api.loader import to_stream, SourceNotFound, FileTooLarge
+from api.export import to_file, gen_cache_id
 from api.combine import combine
 from api.combine import convert as C
 from core.com_par import parser
@@ -53,7 +54,7 @@ async def convert(ctx: Context, source: str = None, mode: str = "RGB", *flags) -
     exportable, *opts = await ctx.bot.loop.run_in_executor(None, filter)
 
     if prsed["filters"] and prsed["f_group"] == "AFTER":
-        stream, opts, status = combine(exportable, prsed["filters"][:5], **prsed)
+        exportable, opts, status = combine(exportable, prsed["filters"][:5], **prsed)
 
     kwds = {"pot": prsed["form"], "sf": prsed["skip"]}
     if opts:
